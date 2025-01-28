@@ -69,7 +69,7 @@
     "@hypernym/prettier-config": "^3.2.1",
     "@hypernym/tsconfig": "^2.5.0",
     "@tailwindcss/vite": "^4.0.0",
-    "@types/node": "^22.10.10",
+    "@types/node": "^22.12.0",
     "eslint": "^9.19.0",
     "jsdom": "^26.0.0",
     "prettier": "^3.4.2",
