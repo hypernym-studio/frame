@@ -71,8 +71,8 @@ describe('Frame Manager', () => {
 
       let isTriggered = false
 
-      const onRender = frame.render(() => (isTriggered = true))
-      frame.read(() => frame.cancel(onRender))
+      const onUpdate = frame.update(() => (isTriggered = true))
+      frame.render(() => frame.cancel(onUpdate))
 
       return !isTriggered ? resolve() : reject()
     })
@@ -103,11 +103,11 @@ describe('Frame Manager', () => {
 
       let index = 0
 
-      frame.read(() => {
+      frame.update(() => {
         index++
-        frame.read(() => index++, { schedule: false })
+        frame.update(() => index++, { schedule: false })
       })
-      frame.update(() => (index === 2 ? resolve() : reject()))
+      frame.render(() => (index === 2 ? resolve() : reject()))
     })
   })
 })
