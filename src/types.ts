@@ -127,10 +127,9 @@ export interface FrameOptions<T extends string> {
    * Useful when you want to control the framerate limit and prevent the frame loop from running at the maximum possible speed
    * (e.g., for performance reasons, consistency, or to match a loop’s intended frame rate).
    *
-   * By specifying an `fps` value, you can limit the frame update cycle to run at a specific rate.
    * This ensure that the updates are more predictable and not too fast or inconsistent.
    *
-   * By default, the frame runs as fast as possible (typically tied to the `raf` cycle, which is usually 60 FPS or higher).
+   * By default, the frame runs as fast as possible (typically tied to the raf cycle, which is usually 60 FPS or higher).
    *
    * @default undefined
    */
