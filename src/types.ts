@@ -10,6 +10,12 @@ export interface PhaseScheduleOptions {
    *
    * By default, the callback will only be executed once.
    *
+   * @example
+   *
+   * ```ts
+   * frame.update((state) => console.log(state), { loop: true })
+   * ```
+   *
    * @default undefined
    */
   loop?: boolean
@@ -19,6 +25,18 @@ export interface PhaseScheduleOptions {
    * By default this is enabled which means the callback waits for the next loop cycle.
    *
    * If disabled, it cancels the scheduling to the next frame and executes at the end of the current frame.
+   *
+   * @example
+   *
+   * ```ts
+   * let index = 0
+   *
+   * frame.update(() => {
+   *   index++
+   *   frame.update(() => index++, { schedule: false })
+   * })
+   * frame.render(() => console.log('Index: ', index)) // => Index 2
+   * ```
    *
    * @default true
    */
@@ -54,18 +72,36 @@ export type Frame<T extends string> = {
    *
    * Ensures that the frame updates continue as expected, without skipping any frames,
    * and the system will continue processing scheduled tasks on each new frame.
+   *
+   * @example
+   *
+   * ```ts
+   * frame.play()
+   * ```
    */
   play: () => void
   /**
    * Halts the entire frame update loop, pausing all scheduled tasks and animations until `.play()` is explicitly called again.
    *
    * Helps prevent unnecessary processing and save system resources.
+   *
+   * @example
+   *
+   * ```ts
+   * frame.pause()
+   * ```
    */
   pause: () => void
   /**
    * Allows you to remove a specific callback from the frame update cycle which means no more callback repeats on subsequent frames.
    *
    * This is useful when you need to dynamically remove or cancel a task from the queue without disrupting the rest of the frame update flow.
+   *
+   * @example
+   *
+   * ```ts
+   * frame.cancel(frame.read(() => {}))
+   * ```
    */
   cancel: (callback: PhaseCallback) => void
   /**
@@ -78,6 +114,12 @@ export type Frame<T extends string> = {
    *
    * It's recommended to call this method when you are sure that there is no need for another frame process,
    * such as before changing routes in meta-frameworks.
+   *
+   * @example
+   *
+   * ```ts
+   * frame.clear()
+   * ```
    */
   clear: () => void
   /**
@@ -86,6 +128,12 @@ export type Frame<T extends string> = {
    * This can include info about the frame’s current `delta`, `timestamp` and `running` status.
    *
    * Useful for debugging and monitoring or for dynamic actions based on the current state of the frame.
+   *
+   * @example
+   *
+   * ```ts
+   * frame.state
+   * ```
    */
   get state(): Readonly<FrameState>
 } & FramePhases<T>
@@ -104,6 +152,12 @@ export interface FrameOptions<T extends string> {
    * Also, frame dynamically configures type safety under the hood, automatically adjusting and validating types for each phase
    * while preventing runtime errors and ensuring your frame updates are always on track.
    *
+   * @example
+   *
+   * ```ts
+   * createFrame({ phases: ['measure', 'mutate'] })
+   * ```
+   *
    * @default ['read', 'update', 'render']
    */
   phases?: T[]
@@ -118,6 +172,12 @@ export interface FrameOptions<T extends string> {
    * - `raf` — requestAnimationFrame
    * - `timeout` — setTimeout
    *
+   * @example
+   *
+   * ```ts
+   * createFrame({ ticker: 'timeout' })
+   * ```
+   *
    * @default 'raf'
    */
   ticker?: TickerIDs
@@ -130,6 +190,12 @@ export interface FrameOptions<T extends string> {
    * This ensure that the updates are more predictable and not too fast or inconsistent.
    *
    * By default, the frame runs as fast as possible (typically tied to the raf cycle, which is usually 60 FPS or higher).
+   *
+   * @example
+   *
+   * ```ts
+   * createFrame({ fps: 60 })
+   * ```
    *
    * @default undefined
    */
