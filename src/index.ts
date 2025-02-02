@@ -54,7 +54,7 @@ import type {
  *
  * Also, it's possible to create a `frame` manager with custom phases.
  *
- * Frame will automatically handle everything based on the defined values, with full type safety and autocompletion,
+ * **Frame** will automatically handle everything based on the defined values, with full type safety and autocompletion,
  * ensuring a seamless development experience.
  *
  * @example
@@ -62,8 +62,8 @@ import type {
  * ```ts
  * import { createFrame } from '@hypernym/frame'
  *
- * // Creates a new `frame` manager with custom phases `measure` and `mutate`
- * // These custom phases will replace the default ones (s'read', 'update', 'render')
+ * // Creates a new `frame` manager with custom phases
+ * // These custom phases will replace the default ones ('read', 'update', 'render')
  * const frame = createFrame({ phases: ['measure', 'mutate'] })
  *
  * // Adds a custom callback to the `measure` phase
