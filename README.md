@@ -69,6 +69,55 @@ Organizes processes into distinct default phases (`read`, `update`, `render`), c
 
 These methods are super useful in situations where you need to manage the frame dynamically, such as when the user switches tabs and returns to the page.
 
+## Installation
+
+Install `@hypernym/frame` package:
+
+```sh
+# via pnpm
+pnpm add @hypernym/frame
+```
+
+```sh
+# via npm
+npm install @hypernym/frame
+```
+
+### CDN
+
+Here are some examples of how to integrate **Frame** from a CDN via a script tag.
+
+Also, it is possible to download files manually and serve them accordingly.
+
+#### ESM (minified)
+
+```html
+<script type="module">
+  import { createFrame } from 'https://unpkg.com/@hypernym/frame/dist/index.min.mjs'
+  const frame = createFrame()
+</script>
+```
+
+#### IIEF (minified)
+
+```html
+<script src="https://unpkg.com/@hypernym/frame/dist/index.iief.js"></script>
+<script>
+  const { createFrame } = Frame
+  const frame = createFrame()
+</script>
+```
+
+#### UMD (minified)
+
+```html
+<script src="https://unpkg.com/@hypernym/frame/dist/index.umd.js"></script>
+<script>
+  const { createFrame } = Frame
+  const frame = createFrame()
+</script>
+```
+
 ## Quick Start
 
 Create a `frame` manager with default phases.
