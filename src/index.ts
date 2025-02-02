@@ -12,7 +12,7 @@ import type {
 /**
  * Creates a universal `frame` manager.
  *
- * Frame is designed to manage and execute processes in different phases of a frame-based loop,
+ * **Frame** is designed to manage and execute processes in different phases of a frame-based loop,
  * typically used for timed operations, making it ideal for game loops, animations or periodic updates.
  *
  * Organizes processes into distinct default phases (`read`, `update`, `render`),
@@ -20,7 +20,7 @@ import type {
  * with the browser’s `requestAnimationFrame` method (or a fallback in non-browser environments),
  * and allows dynamic configuration of frame phases with automatic type inference for enhanced development experience.
  *
- * Also, `frame` provides `play` and `pause` methods for powerful control over the execution of the frame cycle,
+ * **Frame** provides `play`, `pause`, `cancel` and `clear` methods for powerful control over the execution of the frame cycle,
  * allowing advanced manipulation of when the frame loop should continue or wait for next update.
  *
  * These methods are super useful in situations where you need to manage the frame dynamically,
@@ -31,30 +31,31 @@ import type {
  * ```ts
  * import { createFrame } from '@hypernym/frame'
  *
- * // Creates a new `frame` manager
  * const frame = createFrame()
  *
- * // Adds a custom callback to the `read` phase
- * const onRead = frame.read(() => { console.log('read') })
- * frame.cancel(onRead) // Removes the `onRead` callback
+ * let index = 0
  *
  * // Adds a custom callback to the `update` phase and enables looping
- * const onUpdate = frame.update(() => { console.log('update') }, { loop: true })
- * frame.cancel(onUpdate) // Removes the `onUpdate` callback
  *
- * // Adds a custom callback to the `render` phase
- * const onRender = frame.render(() => { console.log('render') })
- * frame.cancel(onRender) // Removes the `onRender` callback
+ * const onUpdate = frame.update(
+ *   (state) => {
+ *     console.log('Update Phase Loop')
  *
- * console.log(frame.state) // Returns the current frame state (delta, timestamp, isRunning, isPaused)
+ *     index++
  *
- * frame.clear() // Clears all callbacks from phases, resets state and cancels ticker
+ *     if (index > 100) {
+ *       frame.cancel(onUpdate)
+ *       console.log('Update Phase Loop: Done!', state)
+ *     }
+ *   },
+ *   { loop: true },
+ * )
  * ```
  *
  * Also, it's possible to create a `frame` manager with custom phases.
  *
- * Frame will automatically handle everything based on the custom phases you define,
- * with full type safety and autocompletion, ensuring a seamless development experience.
+ * Frame will automatically handle everything based on the defined values, with full type safety and autocompletion,
+ * ensuring a seamless development experience.
  *
  * @example
  *
@@ -62,16 +63,21 @@ import type {
  * import { createFrame } from '@hypernym/frame'
  *
  * // Creates a new `frame` manager with custom phases `measure` and `mutate`
- * // These custom phases will replace the default ones (e.g., 'read', 'update', 'render')
+ * // These custom phases will replace the default ones (s'read', 'update', 'render')
  * const frame = createFrame({ phases: ['measure', 'mutate'] })
  *
  * // Adds a custom callback to the `measure` phase
- * const onMeasure = frame.measure(() => { console.log('measure') })
- * frame.cancel(onMeasure) // Removes the `onMeasure` callback
+ * frame.measure(() => {
+ *   console.log('measure')
+ * })
  *
  * // Adds a custom callback to the `mutate` phase
- * const onMutate = frame.mutate(() => { console.log('mutate') })
- * frame.cancel(onMutate) // Removes the `onMutate` callback
+ * frame.mutate(() => {
+ *   console.log('mutate')
+ * })
+ *
+ * // Clears all callbacks from phases, resets state and cancels ticker
+ * frame.clear()
  * ```
  *
  * @see [Repository](https://github.com/hypernym-studio/frame)
@@ -122,9 +128,9 @@ export function createFrame<T extends string = PhaseIDs>(
         callback: PhaseCallback,
         { loop, schedule = true }: PhaseScheduleOptions = {},
       ): PhaseCallback => {
-        const targetFrame = isRunning && !schedule ? thisFrame : nextFrame
+        const queue = isRunning && !schedule ? thisFrame : nextFrame
         if (loop) loops.add(callback)
-        if (!targetFrame.has(callback)) targetFrame.add(callback)
+        if (!queue.has(callback)) queue.add(callback)
         return callback
       },
       run: (state: FrameState): void => {
