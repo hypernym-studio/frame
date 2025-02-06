@@ -98,10 +98,10 @@ Also, it is possible to download files manually and serve them accordingly.
 </script>
 ```
 
-#### IIEF (minified)
+#### IIFE (minified)
 
 ```html
-<script src="https://unpkg.com/@hypernym/frame/dist/index.iief.js"></script>
+<script src="https://unpkg.com/@hypernym/frame/dist/index.iife.js"></script>
 <script>
   const { createFrame } = Frame
   const frame = createFrame()
