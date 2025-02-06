@@ -43,7 +43,7 @@
     "prepublishOnly": "npm run build"
   },
   "sideEffects": false,
-  "packageManager": "pnpm@9.15.4",
+  "packageManager": "pnpm@10.2.0",
   "engines": {
     "node": ">=20.0.0",
     "pnpm": ">=9.0.0"
@@ -62,17 +62,17 @@
   },
   "devDependencies": {
     "@hypernym/bundler": "^0.14.0",
-    "@hypernym/eslint-config": "^3.5.4",
-    "@hypernym/prettier-config": "^3.2.1",
+    "@hypernym/eslint-config": "^3.5.6",
+    "@hypernym/prettier-config": "^3.2.2",
     "@hypernym/tsconfig": "^2.5.0",
     "@tailwindcss/vite": "^4.0.3",
-    "@types/node": "^22.13.0",
+    "@types/node": "^22.13.1",
     "eslint": "^9.19.0",
     "jsdom": "^26.0.0",
     "prettier": "^3.4.2",
     "tailwindcss": "^4.0.3",
     "typescript": "^5.7.3",
-    "vite": "^6.0.11",
-    "vitest": "^3.0.4"
+    "vite": "^6.1.0",
+    "vitest": "^3.0.5"
   }
 }
