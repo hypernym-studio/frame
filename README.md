@@ -35,27 +35,27 @@
 
 ## Core Concepts
 
-#### Frame Scheduling
+#### Frame Scheduling 🔀
 
-> Manages and schedules processes in different phases of the frame loop, using `requestAnimationFrame` for synchronization and ensuring smooth execution in timed operations like game loops and animations.
+> Manages and schedules processes in different phases of the frame loop, using requestAnimationFrame for synchronization and ensuring smooth execution in timed operations like game loops and animations.
 
-#### Custom Dynamic Phases
+#### Custom Dynamic Phases 🔢
 
-> Allows dynamic configuration of frame phases (e.g., read, update, render) for more flexibility and precise control over the execution flow of different tasks.
+> Allows dynamic configuration of frame phases (read, update, render) for more flexibility and precise control over the execution flow of different tasks.
 
-#### Multiple Ticker Mechanisms
+#### Multiple Ticker Mechanisms ⏱️
 
 > Supports multiple ticking mechanisms, such as raf or timeout, to execute tasks at different intervals, enabling fine-grained control over the timing of operations in sync with the frame cycle.
 
-#### Frame Controls
+#### Frame Controls 🎮
 
 > Provides methods for the frame cycle, offering developers complete control over the execution flow, especially useful for dynamic scenarios like tab-switching or manual pause/resume functionality.
 
-#### FPS Managment
+#### FPS Managment 🎯
 
 > Adds fixed rate control for frame update cycle, limiting the maximum frame rate for performance consistency and predictability, preventing the loop from running too fast or inconsistently.
 
-#### Frame State
+#### Frame State 💿
 
 > Tracks and stores the state of the frame cycle, allowing for accurate, consistent handling of time-dependent processes during each frame update, ensuring reliable execution.
 
