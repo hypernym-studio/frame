@@ -1,5 +1,7 @@
-@layer theme, base;
-
-@import 'tailwindcss';
-@import './theme.css' layer(theme);
-@import './base.css' layer(base);
+html {
+  color: #fff;
+  background-color: #000;
+  padding: 0;
+  margin: 0;
+  font-family: sans-serif;
+}
