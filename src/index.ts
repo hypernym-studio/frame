@@ -92,7 +92,9 @@ export function createFrame<T extends string = PhaseIDs>(
   } = options
 
   const phases = {} as Record<T, Phase>
-  const loops = new Set<PhaseCallback>()
+
+  let loops = new WeakSet<PhaseCallback>()
+  let activeLoops: number = 0
 
   let tickerId: number | null = null
   let shouldRunTicker: boolean = false
@@ -129,7 +131,10 @@ export function createFrame<T extends string = PhaseIDs>(
         { loop, schedule = true }: PhaseScheduleOptions = {},
       ): PhaseCallback => {
         const queue = isRunning && !schedule ? thisFrame : nextFrame
-        if (loop) loops.add(callback)
+        if (loop) {
+          if (!loops.has(callback)) activeLoops++
+          loops.add(callback)
+        }
         if (!queue.has(callback)) queue.add(callback)
         return callback
       },
@@ -154,6 +159,7 @@ export function createFrame<T extends string = PhaseIDs>(
       },
       cancel: (callback: PhaseCallback): void => {
         nextFrame.delete(callback)
+        if (loops.has(callback)) activeLoops--
         loops.delete(callback)
       },
       clear: (): void => {
@@ -198,7 +204,7 @@ export function createFrame<T extends string = PhaseIDs>(
     const now = performance.now()
     const time = now - totalPausedTime
 
-    shouldRunTicker = loops.size > 0
+    shouldRunTicker = activeLoops > 0
 
     if (fps) {
       const delta = time - lastFrameTime
@@ -255,12 +261,17 @@ export function createFrame<T extends string = PhaseIDs>(
     },
     clear: (): void => {
       state = defaultState()
+      loops = new WeakSet()
+      activeLoops = 0
       phase((id) => id.clear())
       cancelTicker()
       shouldRunTicker = false
     },
     get state(): Readonly<FrameState> {
       return state
+    },
+    get activeLoops(): Readonly<number> {
+      return activeLoops
     },
   } as Frame<T>
 
