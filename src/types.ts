@@ -136,6 +136,18 @@ export type Frame<T extends string> = {
    * ```
    */
   get state(): Readonly<FrameState>
+  /**
+   * Provides a read-only number of active frame loops at any given point.
+   *
+   * Useful for debugging and monitoring or for dynamic actions.
+   *
+   * @example
+   *
+   * ```ts
+   * frame.activeLoops
+   * ```
+   */
+  get activeLoops(): Readonly<number>
 } & FramePhases<T>
 
 export type TickerIDs = 'raf' | 'timeout'

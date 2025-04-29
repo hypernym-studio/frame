@@ -30,7 +30,7 @@
 - API-Friendly
 
 <blockquote>
-  <sub><strong>Package size</strong>: <code>~1.44 KB</code> minified, <code>~790 B</code> gzip</sub>
+  <sub><strong>Package size</strong>: <code>~1.54 KB</code> minified, <code>~855 B</code> gzip</sub>
 </blockquote>
 
 ## Core Concepts
@@ -230,6 +230,9 @@ By default, the callback will only be executed once.
 
 ```ts
 frame.update((state) => console.log(state), { loop: true })
+
+// The number of active frame loops can also be accessed via the `.activeLoops` getter
+console.log(frame.activeLoops)
 ```
 
 ### schedule
