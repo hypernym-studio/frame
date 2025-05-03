@@ -174,12 +174,9 @@ export interface FrameOptions<T extends string> {
    */
   phases?: T[]
   /**
-   * Specifies the timing mechanism used for scheduling the frame update cycle.
+   * Specifies the ticking mechanism used to schedule frame update cycles.
    *
-   * This determines how the frame updates are processed, whether through the `requestAnimationFrame` or `setTimeout` timing strategy.
-   *
-   * For use cases like testing, animation control, or specialized timing (e.g., in non-browser environments), you can specify
-   * other ticker mechanism:
+   * This determines how frame updates are processed, either via the `requestAnimationFrame` or `setTimeout` timing strategy.
    *
    * - `raf` — requestAnimationFrame
    * - `timeout` — setTimeout
@@ -211,7 +208,7 @@ export interface FrameOptions<T extends string> {
    *
    * @default undefined
    */
-  fps?: number
+  fps?: number | false
 }
 
 export * from './'
