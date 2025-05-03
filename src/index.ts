@@ -170,10 +170,12 @@ export function createFrame<T extends string = PhaseIDs>(
     return phase
   }
 
+  const isRaf = ticker === 'raf' && isBrowser
+  const isTimeout = ticker === 'timeout'
+
   const runTicker = (): void => {
-    if (ticker === 'raf') {
-      if (isBrowser) tickerId = requestAnimationFrame(runFrame)
-    } else {
+    if (isRaf) tickerId = requestAnimationFrame(runFrame)
+    else if (isTimeout) {
       const now = performance.now()
       const delta = now - lastFrameTime
 
@@ -187,16 +189,10 @@ export function createFrame<T extends string = PhaseIDs>(
   }
 
   const cancelTicker = (): void => {
-    if (ticker === 'raf') {
-      if (isBrowser && tickerId) {
-        cancelAnimationFrame(tickerId)
-        tickerId = null
-      }
-    } else {
-      if (tickerId) {
-        clearTimeout(tickerId)
-        tickerId = null
-      }
+    if (tickerId) {
+      if (isRaf) cancelAnimationFrame(tickerId)
+      else if (isTimeout) clearTimeout(tickerId)
+      tickerId = null
     }
   }
 
