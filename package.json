@@ -4,7 +4,10 @@
   "author": "Hypernym Studio",
   "description": "Universal Frame Manager.",
   "license": "MIT",
-  "repository": "hypernym-studio/frame",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hypernym-studio/frame.git"
+  },
   "homepage": "https://github.com/hypernym-studio/frame",
   "funding": "https://github.com/sponsors/ivodolenc",
   "type": "module",
@@ -42,11 +45,6 @@
     "test": "vitest -c test/vitest.config.ts",
     "prepublishOnly": "npm run build"
   },
-  "packageManager": "pnpm@10.10.0",
-  "engines": {
-    "node": ">=20.0.0",
-    "pnpm": ">=10.0.0"
-  },
   "peerDependencies": {
     "@types/node": ">=20.0.0",
     "typescript": ">=5.0.0"
@@ -60,16 +58,16 @@
     }
   },
   "devDependencies": {
-    "@hypernym/bundler": "^0.14.3",
-    "@hypernym/eslint-config": "^3.6.0",
-    "@hypernym/prettier-config": "^3.2.3",
-    "@hypernym/tsconfig": "^2.6.0",
-    "@types/node": "^22.15.3",
+    "@hypernym/bundler": "^0.14.4",
+    "@hypernym/eslint-config": "^3.6.1",
+    "@hypernym/prettier-config": "^3.2.4",
+    "@hypernym/tsconfig": "^2.6.1",
+    "@types/node": "^22.15.17",
     "eslint": "^9.26.0",
     "jsdom": "^26.1.0",
     "prettier": "^3.5.3",
     "typescript": "^5.8.3",
-    "vite": "^6.3.4",
-    "vitest": "^3.1.2"
+    "vite": "^6.3.5",
+    "vitest": "^3.1.3"
   }
 }
