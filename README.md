@@ -1,4 +1,4 @@
-<h1 align="center">Frame</h1>
+<h1 align="center">@hypernym/frame</h1>
 
 <p align="center">Universal Frame Manager.</p>
 
