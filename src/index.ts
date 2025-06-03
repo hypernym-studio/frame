@@ -123,8 +123,6 @@ export function createFrame<T extends string = PhaseIDs>(
       callback(state)
     }
 
-    const swapFrames = () => ([thisFrame, nextFrame] = [nextFrame, thisFrame])
-
     const phase: Phase = {
       schedule: (
         callback: PhaseCallback,
@@ -145,11 +143,9 @@ export function createFrame<T extends string = PhaseIDs>(
         }
 
         isRunning = true
-
-        swapFrames()
+        ;[thisFrame, nextFrame] = [nextFrame, thisFrame]
         thisFrame.forEach(runPhaseCallback)
         thisFrame.clear()
-
         isRunning = false
 
         if (flushNextFrame) {
