@@ -41,6 +41,8 @@
 - **Frame Controls**: Provides developers complete control over the execution flow.
 - **FPS Managment**: Adds fixed rate control for frame update cycle.
 - **Frame State**: Tracks and stores the state of the frame cycle.
+- **Modular Code**: Follows modern module standards for flexibility and integration.
+- **Type-safe**: Provides first-class TypeScript support with official built-in declarations.
 
 ## Introduction
 
