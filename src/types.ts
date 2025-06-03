@@ -167,7 +167,9 @@ export interface FrameOptions<T extends string> {
    * @example
    *
    * ```ts
-   * createFrame({ phases: ['measure', 'mutate'] })
+   * import { createFrame } from '@hypernym/frame'
+   *
+   * const frame = createFrame({ phases: ['measure', 'mutate'] })
    * ```
    *
    * @default ['read', 'update', 'render']
@@ -184,7 +186,9 @@ export interface FrameOptions<T extends string> {
    * @example
    *
    * ```ts
-   * createFrame({ ticker: 'timeout' })
+   * import { createFrame } from '@hypernym/frame'
+   *
+   * const frame = createFrame({ ticker: 'timeout' })
    * ```
    *
    * @default 'raf'
@@ -203,7 +207,9 @@ export interface FrameOptions<T extends string> {
    * @example
    *
    * ```ts
-   * createFrame({ fps: 60 })
+   * import { createFrame } from '@hypernym/frame'
+   *
+   * const frame = createFrame({ fps: 60 })
    * ```
    *
    * @default undefined
