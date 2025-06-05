@@ -1,4 +1,4 @@
-import { isBrowser, defaultState } from './utils'
+import { defaultState } from './utils'
 import type {
   Phase,
   PhaseIDs,
@@ -166,7 +166,7 @@ export function createFrame<T extends string = PhaseIDs>(
     return phase
   }
 
-  const isRaf = ticker === 'raf' && isBrowser
+  const isRaf = ticker === 'raf' && typeof window !== 'undefined'
   const isTimeout = ticker === 'timeout'
 
   const runTicker = (): void => {

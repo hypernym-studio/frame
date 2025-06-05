@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 
-import { createFrame } from '@'
+import { createFrame } from '@/frame'
 import { describe, test } from 'vitest'
 
 describe('Frame Manager', () => {

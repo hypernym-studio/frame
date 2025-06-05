@@ -1,4 +1,4 @@
-import { createFrame } from '@'
+import { createFrame } from '@/frame'
 
 const frame = createFrame({ fps: 30 })
 
