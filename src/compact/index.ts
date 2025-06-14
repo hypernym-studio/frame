@@ -44,7 +44,7 @@ export function createFrame<T extends string = PhaseIDs>(
   let shouldRunFrame = false
   let isStopped = false
 
-  const frameInterval = 1000 / (fps || 60)
+  let frameInterval = 1000 / 60
   const maxDeltaTime = 40
   let lastFrameTime = 0
   let lastPauseTime: number | null = null
@@ -176,6 +176,13 @@ export function createFrame<T extends string = PhaseIDs>(
     },
     get state(): Readonly<FrameState> {
       return state
+    },
+    get fps(): number | false | undefined {
+      return fps
+    },
+    set fps(v) {
+      frameInterval = 1000 / (v || 60)
+      fps = v
     },
   } as Frame<T>
 
