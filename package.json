@@ -31,10 +31,12 @@
     "request-animation-frame",
     "javascript",
     "typescript",
+    "microtask",
     "schedule",
     "ticker",
     "batch",
     "phase",
+    "queue",
     "loop",
     "raf",
     "fps"
@@ -66,12 +68,12 @@
     "@hypernym/eslint-config": "^3.6.1",
     "@hypernym/prettier-config": "^3.2.4",
     "@hypernym/tsconfig": "^2.6.1",
-    "@types/node": "^22.15.29",
-    "eslint": "^9.28.0",
+    "@types/node": "^24.0.1",
+    "eslint": "^9.29.0",
     "jsdom": "^26.1.0",
     "prettier": "^3.5.3",
     "typescript": "^5.8.3",
     "vite": "^6.3.5",
-    "vitest": "^3.2.1"
+    "vitest": "^3.2.3"
   }
 }
