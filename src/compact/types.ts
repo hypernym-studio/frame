@@ -33,6 +33,8 @@ export type Frame<T extends string> = {
   stop: () => void
   cancel: (callback?: PhaseCallback) => void
   get state(): Readonly<FrameState>
+  get fps(): number | false | undefined
+  set fps(v: number | false | undefined)
 } & FramePhases<T>
 
 export interface FrameOptions<T extends string> {
