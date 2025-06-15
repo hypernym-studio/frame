@@ -44,7 +44,7 @@ export function createFrame<T extends string = PhaseIDs>(
   let shouldRunFrame = false
   let isStopped = false
 
-  let frameInterval = 1000 / 60
+  let frameInterval = 1000 / (fps || 60)
   const maxDeltaTime = 40
   let lastFrameTime = 0
   let lastPauseTime: number | null = null
