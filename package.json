@@ -68,7 +68,7 @@
     "@hypernym/eslint-config": "^3.6.1",
     "@hypernym/prettier-config": "^3.2.4",
     "@hypernym/tsconfig": "^2.6.1",
-    "@types/node": "^24.0.1",
+    "@types/node": "^24.0.3",
     "eslint": "^9.29.0",
     "jsdom": "^26.1.0",
     "prettier": "^3.5.3",
