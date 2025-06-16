@@ -1,21 +1,15 @@
-export type PhaseIDs = 'read' | 'update' | 'render'
+export type Process = (state: FrameState) => void
 
-export type PhaseCallback = (state: FrameState) => void
-
-export interface PhaseScheduleOptions {
+export interface ProcessOptions {
   loop?: boolean
+  phase?: number
   schedule?: boolean
 }
 
-export type PhaseSchedule = (
-  callback: PhaseCallback,
-  options?: PhaseScheduleOptions,
-) => PhaseCallback
-
 export interface Phase {
-  schedule: PhaseSchedule
-  run: (state: FrameState) => void
-  cancel: (callback?: PhaseCallback) => void
+  schedule(process: Process, options?: ProcessOptions): Process
+  add(state: FrameState): void
+  delete(process: Process): void
 }
 
 export interface FrameState {
@@ -24,23 +18,19 @@ export interface FrameState {
   isRunning: boolean
 }
 
-export type FramePhases<T extends string> = {
-  [K in T]: PhaseSchedule
+export interface Frame {
+  add(process: Process, options?: ProcessOptions): Process
+  delete(process?: Process): void
+  start(): void
+  stop(): void
+  get state(): Readonly<FrameState>
+  get fps(): number | false
+  set fps(v: number | false)
 }
 
-export type Frame<T extends string> = {
-  start: () => void
-  stop: () => void
-  cancel: (callback?: PhaseCallback) => void
-  get state(): Readonly<FrameState>
-  get fps(): number | false | undefined
-  set fps(v: number | false | undefined)
-} & FramePhases<T>
-
-export interface FrameOptions<T extends string> {
-  phases?: T[]
-  scheduler?: (callback: VoidFunction) => number | void
-  allowLoop?: boolean
+export interface FrameOptions {
+  scheduler?: (process: VoidFunction) => number | void
+  loop?: boolean
   fps?: number | false
 }
 

@@ -1,9 +1,7 @@
-import { defaultState } from './utils'
 import type {
+  Process,
+  ProcessOptions,
   Phase,
-  PhaseIDs,
-  PhaseCallback,
-  PhaseScheduleOptions,
   FrameState,
   FrameOptions,
   Frame,
@@ -19,68 +17,70 @@ import type {
  *
  * const frame = createFrame()
  *
- * frame.update((state) => console.log(state), { loop: true })
+ * const process = frame.add((state) => console.log(state), { loop: true }) // Adds the process
+ *
+ * frame.delete(process) // Deletes a specific process
+ *
+ * frame.add((state) => console.log(state), { phase: 1 }) // Adds the process to a specific phase (default is 0)
+ *
+ * frame.delete() // Deletes all processes, phases and resets the frame state
  * ```
  *
  * @see [Repository](https://github.com/hypernym-studio/frame)
  */
-export function createFrame<T extends string = PhaseIDs>(
-  options: FrameOptions<T> = {},
-): Frame<T> {
+export function createFrame(options: FrameOptions = {}): Frame {
   let {
-    phases: framePhases = ['read', 'update', 'render'] as T[],
     scheduler = typeof window !== 'undefined'
       ? requestAnimationFrame
       : () => {},
-    allowLoop = true,
-    fps,
+    loop: allowLoop = true,
+    fps = false,
   } = options
 
-  const phases = {} as Record<T, Phase>
+  const phases = new Map<number, Phase>()
+  let order: number[] = []
 
-  let loops = new WeakSet<PhaseCallback>()
+  let loops = new WeakSet<Process>()
   let activeLoops = 0
 
-  let shouldRunFrame = false
+  let shouldRun = false
   let isStopped = false
 
-  let frameInterval = 1000 / (fps || 60)
   const maxDeltaTime = 40
-  let lastFrameTime = 0
-  let lastPauseTime: number | null = null
+  let frameInterval = 1000 / (fps || 60)
+  let lastTime = 0
+  let lastPauseTime = 0
   let totalPausedTime = 0
 
+  const defaultState = () => ({ delta: 0, timestamp: 0, isRunning: false })
   let state: FrameState = defaultState()
 
-  const phase = (callback: (id: Phase) => void): void =>
-    framePhases.forEach((id) => callback(phases[id]))
-
   const createPhase = (): Phase => {
-    let thisFrame = new Set<PhaseCallback>()
-    let nextFrame = new Set<PhaseCallback>()
+    let thisFrame = new Set<Process>()
+    let nextFrame = new Set<Process>()
 
     let isRunning = false
     let flushNextFrame = false
 
-    const runPhaseCallback = (callback: PhaseCallback): void => {
-      if (loops.has(callback)) phase.schedule(callback)
-      callback(state)
+    const runProcess = (process: Process): void => {
+      if (loops.has(process)) phase.schedule(process)
+      process(state)
     }
 
     const phase: Phase = {
-      schedule: (
-        callback: PhaseCallback,
-        { loop, schedule = true }: PhaseScheduleOptions = {},
-      ): PhaseCallback => {
+      schedule(
+        process: Process,
+        { loop, schedule = true }: ProcessOptions = {},
+      ): Process {
         const queue = isRunning && !schedule ? thisFrame : nextFrame
-        if (loop) {
-          if (!loops.has(callback)) activeLoops++
-          loops.add(callback)
+        if (loop && !loops.has(process)) {
+          loops.add(process)
+          activeLoops++
         }
-        if (!queue.has(callback)) queue.add(callback)
-        return callback
+        queue.add(process)
+        return process
       },
-      run: (state: FrameState): void => {
+      add(state: FrameState): void {
         if (isRunning) {
           flushNextFrame = true
           return
@@ -88,24 +88,19 @@ export function createFrame<T extends string = PhaseIDs>(
 
         isRunning = true
         ;[thisFrame, nextFrame] = [nextFrame, thisFrame]
-        thisFrame.forEach(runPhaseCallback)
+        thisFrame.forEach(runProcess)
         thisFrame.clear()
         isRunning = false
 
         if (flushNextFrame) {
           flushNextFrame = false
-          phase.run(state)
+          phase.add(state)
         }
       },
-      cancel: (callback?: PhaseCallback): void => {
-        if (!callback) {
-          thisFrame.clear()
-          nextFrame.clear()
-          return
-        }
-        nextFrame.delete(callback)
-        if (loops.has(callback)) activeLoops--
-        loops.delete(callback)
+      delete(process: Process): void {
+        nextFrame.delete(process)
+        if (loops.has(process)) activeLoops--
+        loops.delete(process)
       },
     }
     return phase
@@ -117,89 +112,90 @@ export function createFrame<T extends string = PhaseIDs>(
     const now = performance.now()
     const time = now - totalPausedTime
 
-    shouldRunFrame = activeLoops > 0
+    shouldRun = activeLoops > 0
 
     if (fps) {
-      const delta = time - lastFrameTime
+      const delta = time - lastTime
       if (delta < frameInterval) {
         if (!isStopped) scheduler(runFrame)
         return
       }
-      lastFrameTime = time - (delta % frameInterval)
+      lastTime = time - (delta % frameInterval)
       state.delta = frameInterval
     } else {
       state.delta =
         state.timestamp === 0
           ? frameInterval
           : Math.min(Math.max(time - state.timestamp, 1), maxDeltaTime)
-      lastFrameTime = time
+      lastTime = time
     }
 
     state.timestamp = time
     state.isRunning = true
-    phase((id) => id.run(state))
+    order.forEach((p) => phases.get(p)?.add(state))
     state.isRunning = false
 
-    if (shouldRunFrame && allowLoop && !isStopped) scheduler(runFrame)
+    if (shouldRun && allowLoop && !isStopped) scheduler(runFrame)
   }
 
-  const frame: Frame<T> = {
-    start: (): void => {
-      if (isStopped && shouldRunFrame) {
+  return {
+    add(
+      process: Process,
+      { loop, phase = 0, schedule = true }: ProcessOptions = {},
+    ): Process {
+      let p = phases.get(phase)
+      if (!p) {
+        order.push(phase)
+        order.sort((a, b) => a - b)
+        p = createPhase()
+        phases.set(phase, p)
+      }
+      if (!shouldRun) {
+        shouldRun = true
+        lastTime = performance.now()
+        scheduler(runFrame)
+      }
+      return p.schedule(process, { loop, phase, schedule })
+    },
+    delete(process?: Process): void {
+      if (!process) {
+        state = defaultState()
+        phases.clear()
+        order = []
+        loops = new WeakSet()
+        activeLoops = lastTime = lastPauseTime = totalPausedTime = 0
+        shouldRun = isStopped = false
+        return
+      }
+      phases.forEach((id) => id.delete(process))
+    },
+    start(): void {
+      if (isStopped && shouldRun) {
         isStopped = false
         const now = performance.now()
         if (lastPauseTime) {
           totalPausedTime += now - lastPauseTime
-          lastPauseTime = null
+          lastPauseTime = 0
         }
-        lastFrameTime = now - totalPausedTime
-        state.timestamp = lastFrameTime
+        state.timestamp = lastTime = now - totalPausedTime
         scheduler(runFrame)
       }
     },
-    stop: (): void => {
+    stop(): void {
       if (!isStopped) {
         isStopped = true
         lastPauseTime = performance.now()
       }
     },
-    cancel: (callback?: PhaseCallback): void => {
-      if (!callback) {
-        state = defaultState()
-        loops = new WeakSet()
-        activeLoops = 0
-        phase((id) => id.cancel())
-        shouldRunFrame = false
-        return
-      }
-      phase((id) => id.cancel(callback))
-    },
     get state(): Readonly<FrameState> {
       return state
     },
-    get fps(): number | false | undefined {
+    get fps(): number | false {
       return fps
     },
     set fps(v) {
       frameInterval = 1000 / (v || 60)
       fps = v
     },
-  } as Frame<T>
-
-  framePhases.forEach((id) => {
-    phases[id] = createPhase()
-    frame[id] = ((
-      callback: PhaseCallback,
-      options: PhaseScheduleOptions = {},
-    ) => {
-      if (!shouldRunFrame) {
-        shouldRunFrame = true
-        lastFrameTime = performance.now()
-        scheduler(runFrame)
-      }
-      return phases[id].schedule(callback, options)
-    }) as Frame<T>[T]
-  })
-
-  return frame
+  }
 }
