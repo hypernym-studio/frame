@@ -34,4 +34,4 @@ export interface FrameOptions {
   fps?: number | false
 }
 
-export * from './'
+export * from '@'

@@ -30,14 +30,14 @@
 - API-Friendly
 
 <blockquote>
-  <sub><strong>Package size</strong>: <code>~1.54 KB</code> minified, <code>~855 B</code> gzip</sub>
+  <sub><strong>Package size</strong>: <code>~1.37 KB</code> minified, <code>~737 B</code> gzip</sub>
 </blockquote>
 
 ## Core Concepts
 
 - **Frame Scheduling**: Schedules processes in different phases of the frame loop.
-- **Custom Dynamic Phases**: Allows dynamic configuration of frame phases.
-- **Multiple Ticker Mechanisms**: Supports multiple ticking mechanisms, such as raf or timeout.
+- **Dynamic Phases**: Allows dynamic configuration of frame phases.
+- **Custom Scheduler**: Supports various schedulers, such as raf, timeout, and microtask.
 - **Frame Controls**: Provides developers complete control over the execution flow.
 - **FPS Managment**: Adds fixed rate control for frame update cycle.
 - **Frame State**: Tracks and stores the state of the frame cycle.
@@ -48,9 +48,9 @@
 
 **Frame** is designed to manage and execute processes in different phases of a frame-based loop, typically used for timed operations, making it ideal for game loops, animations or periodic updates.
 
-Organizes processes into distinct default phases (`read`, `update`, `render`), controls timing with FPS and delta time, ensuring smooth execution by syncing with the browser’s `requestAnimationFrame` method (or a fallback in non-browser environments), and allows dynamic configuration of frame phases with automatic type inference for enhanced development experience.
+Organizes processes into distinct phases, controls timing with FPS and delta time, ensuring smooth execution by syncing with the browser’s `requestAnimationFrame` method, and allows dynamic configuration of frame phases.
 
-**Frame** provides `play`, `pause`, `cancel` and `clear` methods for powerful control over the execution of the frame cycle, allowing advanced manipulation of when the frame loop should continue or wait for next update.
+**Frame** provides `add`, `delete`, `start` and `stop` methods for powerful control over the execution of the frame cycle, allowing advanced manipulation of when the frame loop should continue or wait for next update.
 
 These methods are super useful in situations where you need to manage the frame dynamically, such as when the user switches tabs and returns to the page.
 
@@ -114,15 +114,15 @@ const frame = createFrame()
 
 let index = 0
 
-// Adds a custom callback to the `update` phase and enables looping
-const onUpdate = frame.update(
+// Adds a custom process to the `default` phase and enables looping
+const process = frame.add(
   (state) => {
     index++
-    console.log('Update Phase Loop', index)
+    console.log('Process Loop', index)
 
     if (index > 100) {
-      frame.cancel(onUpdate)
-      console.log('Update Phase Loop: Done!', state)
+      frame.delete(process)
+      console.log('Process Loop: Done!', state)
     }
   },
   { loop: true },
@@ -134,52 +134,22 @@ Each phase is executed in a strict order, which can be defined via `frame` optio
 Default phase order is `read` → `update` → `render`.
 
 ```ts
-frame.render(() => console.log('Phase 3: Render'))
-frame.update(() => console.log('Phase 2: Update'))
-frame.read(() => console.log('Phase 1: Read'))
-frame.render(() => console.log('Phase 3: Render'))
-frame.read(() => console.log('Phase 1: Read'))
-frame.update(() => console.log('Phase 2: Update'))
+frame.add(() => console.log('Phase 2: Render'), { phase: 2 })
+frame.add(() => console.log('Phase 1: Update'), { phase: 1 })
+frame.add(() => console.log('Phase 0: Read'))
+frame.add(() => console.log('Phase 2: Render'), { phase: 2 })
+frame.add(() => console.log('Phase 0: Read'))
 ```
 
 Output:
 
 ```txt
-Phase 1: Read
-Phase 1: Read
-Phase 2: Update
-Phase 2: Update
-Phase 3: Render
-Phase 3: Render
-```
-
-Also, it's possible to create a `frame` manager with custom phases.
-
-**Frame** will automatically handle everything based on the defined values, with full type safety and autocompletion, ensuring a seamless development experience.
-
-```ts
-import { createFrame } from '@hypernym/frame'
-
-// Creates a new `frame` manager with custom phases
-// These custom phases will replace the default ones ('read', 'update', 'render')
-const frame = createFrame({ phases: ['measure', 'mutate'] })
-
-// Adds a custom callback to the `mutate` phase
-frame.mutate(() => {
-  console.log('Phase 2: Mutate')
-})
-
-// Adds a custom callback to the `measure` phase
-frame.measure(() => {
-  console.log('Phase 1: Measure')
-})
-```
-
-Output:
-
-```txt
-Phase 1: Measure
-Phase 2: Mutate
+Phase 0: Read
+Phase 0: Read
+Phase 1: Update
+Phase 1: Update
+Phase 2: Render
+Phase 2: Render
 ```
 
 ## API
@@ -191,15 +161,130 @@ import { createFrame } from '@hypernym/frame'
 const frame = createFrame(options)
 
 // Phases
-frame.read(callback, options)
-frame.update(callback, options)
-frame.render(callback, options)
+frame.add(process, options)
+frame.delete(process)
+frame.delete()
 
 // Controls
-frame.play()
-frame.pause()
-frame.cancel(callback)
-frame.clear()
+frame.start()
+frame.stop()
+
+// Getters/Setters
+frame.state
+frame.fps
+```
+
+### add
+
+- Type: `(process: Process, options?: ProcessOptions) => Process`
+
+Adds a specific process to the frame update cycle.
+
+By default, the process will be executed only once, but you can configure it to repeat by enabling a `loop: true` option, continuing until it is explicitly stopped.
+
+```ts
+frame.add(process, options)
+```
+
+### delete
+
+- Type: `(process?: Process) => void`
+
+Allows you to remove a specific process from the frame update cycle which means no more process repeats on subsequent frames.
+
+This is useful when you need to dynamically remove or cancel a task from the queue without disrupting the rest of the frame update flow.
+
+```ts
+frame.delete(process)
+```
+
+It is also possible to removes all scheduled phases from the frame update cycle and reset the state of the frame.
+
+Effectively clears the entire update queue, stopping all scheduled tasks from running on subsequent frames and cancels the scheduler. No tasks will be executed until new ones are scheduled.
+
+Useful for cleanup or re-initialization, like when starting over or clearing tasks after a specific process completes.
+
+It's recommended to call this method when you are sure that there is no need for another frame process, such as before changing routes in meta-frameworks.
+
+```ts
+frame.delete()
+```
+
+### start
+
+- Type: `() => void`
+
+Unpauses the loop and restores the normal frame update cycle.
+
+Ensures that the frame updates continue as expected, without skipping any frames, and the system will continue processing scheduled tasks on each new frame.
+
+```ts
+frame.start()
+```
+
+### stop
+
+- Type: `() => void`
+
+Halts the entire frame update loop, pausing all scheduled tasks and animations until `.start()` is explicitly called again.
+
+Helps prevent unnecessary processing and save system resources.
+
+```ts
+frame.stop()
+```
+
+### loop
+
+- Type: `boolean`
+- Default: `undefined`
+
+Specifies whether the phase process should continue to repeat through each subsequent frame, without stopping after the first execution.
+
+Directs the scheduling system to re-run the same task on each frame until explicitly deleted.
+
+```ts
+frame.add((state) => console.log(state), { loop: true })
+```
+
+### phase
+
+- Type: `number`
+- Default: `0`
+
+All phases are unified under a single `.add()` method and are created dynamically, optimizing performance by avoiding unnecessary initialization.
+
+The default phase is `0`, and specifying a phase is optional. You can define an unlimited number of phases, though most use cases only require one or two, typically three: `read (0)`, `update (1)`, and `render (2)`.
+
+Phases always run in `strict` numerical order, from the smallest to the largest.
+
+```ts
+frame.add(process, { phase: -1 }) // runs before 0
+frame.add(process) // default phase is 0
+frame.add(process, { phase: 1 }) // runs after 0
+frame.add(process, { phase: 2 }) // runs after 1
+// etc ...
+```
+
+### schedule
+
+- Type: `boolean`
+- Default: `true`
+
+Specifies the scheduling behavior.
+
+By default this is enabled which means the process waits for the next loop cycle.
+
+If disabled, it cancels the scheduling to the next frame and executes at the end of the current frame.
+
+```ts
+let index = 0
+
+frame.add(() => {
+  index++
+  frame.add(() => index++, { schedule: false })
+})
+frame.add(() => console.log('Index: ', index), { phase: 1 }) // => Index 2
 ```
 
 ### state
@@ -213,188 +298,32 @@ This can include info about the frame’s current `delta`, `timestamp` and `runn
 Useful for debugging and monitoring or for dynamic actions based on the current state of the frame.
 
 ```ts
-frame.update((state) => console.log(state))
+frame.add((state) => console.log(state))
 
 // The state can also be accessed via the `.state` getter
 console.log(frame.state)
 ```
 
-### loop
-
-- Type: `boolean`
-- Default: `undefined`
-
-Specifies whether the phase callback should continue to repeat through each subsequent frame, without stopping after the first execution.
-
-Directs the scheduling system to re-run the same task on each frame until explicitly canceled or cleared.
-
-By default, the callback will only be executed once.
-
-```ts
-frame.update((state) => console.log(state), { loop: true })
-
-// The number of active frame loops can also be accessed via the `.activeLoops` getter
-console.log(frame.activeLoops)
-```
-
-### schedule
-
-- Type: `boolean`
-- Default: `true`
-
-Specifies the scheduling behavior.
-
-By default this is enabled which means the callback waits for the next loop cycle.
-
-If disabled, it cancels the scheduling to the next frame and executes at the end of the current frame.
-
-```ts
-let index = 0
-
-frame.update(() => {
-  index++
-  frame.update(() => index++, { schedule: false })
-})
-frame.render(() => console.log('Index: ', index)) // => Index 2
-```
-
-### play
-
-- Type: `() => void`
-
-Unpauses the loop and restores the normal frame update cycle.
-
-Ensures that the frame updates continue as expected, without skipping any frames, and the system will continue processing scheduled tasks on each new frame.
-
-```ts
-frame.play()
-```
-
-### pause
-
-- Type: `() => void`
-
-Halts the entire frame update loop, pausing all scheduled tasks and animations until `.play()` is explicitly called again.
-
-Helps prevent unnecessary processing and save system resources.
-
-```ts
-frame.pause()
-```
-
-### cancel
-
-- Type: `(callback: PhaseCallback) => void`
-
-Allows you to remove a specific callback from the frame update cycle which means no more callback repeats on subsequent frames.
-
-This is useful when you need to dynamically remove or cancel a task from the queue without disrupting the rest of the frame update flow.
-
-```ts
-frame.cancel(frame.read(() => {}))
-```
-
-### clear
-
-- Type: `() => void`
-
-Removes all scheduled phases from the frame update cycle and reset the state of the frame.
-
-It effectively clears the entire update queue, stopping all scheduled tasks from running on subsequent frames and cancels the ticker. No tasks will be executed until new ones are scheduled.
-
-Useful for cleanup or re-initialization, like when starting over or clearing tasks after a specific process completes.
-
-It's recommended to call this method when you are sure that there is no need for another frame process, such as before changing routes in meta-frameworks.
-
-```ts
-frame.clear()
-```
-
-## Examples
-
-### Visibility Change (Switching Tabs)
-
-This example shows how a **Frame** can be paused when the user switches tabs and resume playback when the user returns to the page.
-
-```ts
-const frame = createFrame()
-
-frame.update(() => console.log('Updating...'), { loop: true })
-
-// ...
-
-let isVisibilityEnabled: boolean = false
-
-const handleVisibilityChange = (): void => {
-  if (document.hidden) frame.pause()
-  else frame.play()
-}
-
-const addVisibilityChange = (): void => {
-  if (!isVisibilityEnabled) {
-    document.addEventListener('visibilitychange', handleVisibilityChange)
-    isVisibilityEnabled = true
-  }
-}
-
-const removeVisibilityChange = (): void => {
-  if (isVisibilityEnabled) {
-    document.removeEventListener('visibilitychange', handleVisibilityChange)
-    isVisibilityEnabled = false
-  }
-}
-
-// Adds `visibilitychange` event to the document
-addVisibilityChange()
-
-// Later in the code, it removes the event from the document
-// removeVisibilityChange()
-```
-
 ## Options
 
-All options are documented with descriptions and examples so autocompletion will be offered as you type. Simply hover over the property and see what it does in the quick info tooltip.
+### scheduler
 
-### phases
+- Type: `(process: VoidFunction) => number | void`
+- Default: `requestAnimationFrame`
 
-- Type: `string[]`
-- Default: `['read', 'update', 'render']`
+Specifies the scheduling system for the frame cycle.
 
-Specifies an array of phases that will be executed in strict order during the frame update cycle. Each phase corresponds to a specific point in the frame's execution flow, such as reading input, updating state, or rendering visuals.
-
-Useful when need to define own additional phases or reduce them to a specific number. This allows scheduling custom tasks for specific moments in the frame cycle, helping to organize and optimize frame processing.
-
-Also, frame dynamically configures type safety under the hood, automatically adjusting and validating types for each phase while preventing runtime errors and ensuring your frame updates are always on track.
+This determines how the frame updates are processed, whether through the `requestAnimationFrame`, `setTimeout` or `microtask`.
 
 ```ts
 import { createFrame } from '@hypernym/frame'
 
-const frame = createFrame({ phases: ['measure', 'mutate'] })
-```
-
-### ticker
-
-- Type: `string`
-- Default: `raf`
-
-Specifies the timing mechanism used for scheduling the frame update cycle.
-
-This determines how the frame updates are processed, whether through the `requestAnimationFrame` or `setTimeout` timing strategy.
-
-For use cases like testing, animation control, or specialized timing (e.g., in non-browser environments), you can specify other ticker mechanism:
-
-- `raf` — requestAnimationFrame
-- `timeout` — setTimeout
-
-```ts
-import { createFrame } from '@hypernym/frame'
-
-const frame = createFrame({ ticker: 'raf' })
+const frame = createFrame({ scheduler: queueMicrotask, loop: false })
 ```
 
 ### fps
 
-- Type: `number`
+- Type: `number | false`
 - Default: `undefined`
 
 Specifies a fixed rate for the frame update cycle.
@@ -409,6 +338,9 @@ By default, the frame runs as fast as possible (typically tied to the `raf` cycl
 import { createFrame } from '@hypernym/frame'
 
 const frame = createFrame({ fps: 60 })
+
+// It can also be set dynamically via the `.fps` setter
+frame.fps = 60
 ```
 
 ## Community

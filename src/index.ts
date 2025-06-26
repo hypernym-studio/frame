@@ -8,12 +8,12 @@ import type {
 } from './types'
 
 /**
- * Creates a compact `frame` manager.
+ * Creates a universal `frame` manager.
  *
  * @example
  *
  * ```ts
- * import { createFrame } from '@hypernym/frame/compact'
+ * import { createFrame } from '@hypernym/frame'
  *
  * const frame = createFrame()
  *
