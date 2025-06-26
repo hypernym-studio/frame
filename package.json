@@ -15,10 +15,6 @@
     ".": {
       "types": "./dist/index.d.mts",
       "import": "./dist/index.mjs"
-    },
-    "./compact": {
-      "types": "./dist/compact/index.d.mts",
-      "import": "./dist/compact/index.mjs"
     }
   },
   "files": [
