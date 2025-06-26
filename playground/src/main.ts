@@ -1,28 +1,28 @@
-import { createFrame } from '@/frame'
+import { createFrame } from '@'
 
 const frame = createFrame({ fps: 30 })
 
 const handleVisibilityChange = (): void => {
-  if (document.hidden) frame.pause()
-  else frame.play()
+  if (document.hidden) frame.stop()
+  else frame.start()
 }
 
 document.addEventListener('visibilitychange', handleVisibilityChange)
 
 const el = document.querySelector('.state') as HTMLElement
 
-frame.render(() => console.log('Phase 3: Render'))
-frame.update(() => console.log('Phase 2: Update'))
-frame.read(() => console.log('Phase 1: Read'))
-frame.render(() => console.log('Phase 3: Render'))
-frame.read(() => console.log('Phase 1: Read'))
+frame.add(() => console.log('Phase 2: Render'), { phase: 2 })
+frame.add(() => console.log('Phase 1: Update'), { phase: 1 })
+frame.add(() => console.log('Phase 0: Read'))
+frame.add(() => console.log('Phase 2: Render'), { phase: 2 })
+frame.add(() => console.log('Phase 0: Read'))
 
 let updateIndex: number = 0
 let updateStartTime: number = 0
 
-const onUpdate = frame.update(
+const onUpdate = frame.add(
   (state) => {
-    console.log('Phase 2: Update Loop')
+    console.log('Phase 1: Update Loop')
 
     updateIndex++
     const elapsed = state.timestamp - updateStartTime
@@ -31,9 +31,9 @@ const onUpdate = frame.update(
       updateStartTime = state.timestamp
     }
 
-    if (updateIndex >= 100) frame.cancel(onUpdate)
+    if (updateIndex >= 100) frame.delete(onUpdate)
   },
-  { loop: true },
+  { loop: true, phase: 1 },
 )
 
 let renderStartTime = 0
@@ -41,7 +41,7 @@ let renderStartTime = 0
 const lerp = (start: number, end: number, t: number): number =>
   start + (end - start) * t
 
-const onRender = frame.render(
+const onRender = frame.add(
   (state) => {
     const elapsedTime = state.timestamp - renderStartTime
     const progress = Math.min(elapsedTime / 4000, 1)
@@ -51,12 +51,12 @@ const onRender = frame.render(
     el.style.transform = `translateX(${position}px)`
 
     if (position === 900) {
-      frame.cancel(onRender)
-      console.log('Phase 3: Render Loop Done! ', frame.state)
+      frame.delete(onRender)
+      console.log('Phase 2: Render Loop Done! ', frame.state)
 
-      frame.clear()
+      frame.delete()
       console.log('Frame cleared: ', frame.state)
     }
   },
-  { loop: true },
+  { loop: true, phase: 2 },
 )
