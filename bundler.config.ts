@@ -3,11 +3,11 @@ import { defineConfig } from '@hypernym/bundler'
 export default defineConfig({
   entries: [
     // Main
-    { input: './src/index.ts', output: './dist/index.mjs' },
-    { dts: './src/types.ts', output: './dist/index.d.mts' },
+    { input: './src/index.ts', output: './dist/index.js' },
+    { dts: './src/types.ts', output: './dist/index.d.ts' },
     {
       input: './src/index.ts',
-      output: './dist/index.min.mjs',
+      output: './dist/index.min.js',
       minify: true,
     },
     {
