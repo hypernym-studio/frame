@@ -30,7 +30,7 @@
 - API-Friendly
 
 <blockquote>
-  <sub><strong>Package size</strong>: <code>~1.37 KB</code> minified, <code>~737 B</code> gzip</sub>
+  <sub><strong>Package size</strong>: <code>~1.32 KB</code> minified, <code>~708 B</code> gzip</sub>
 </blockquote>
 
 ## Core Concepts
@@ -78,7 +78,7 @@ Also, it is possible to download files manually and serve them accordingly.
 
 ```html
 <script type="module">
-  import { createFrame } from 'https://unpkg.com/@hypernym/frame/dist/index.min.mjs'
+  import { createFrame } from 'https://unpkg.com/@hypernym/frame/dist/index.min.js'
   const frame = createFrame()
 </script>
 ```
@@ -324,7 +324,7 @@ const frame = createFrame({ scheduler: queueMicrotask, loop: false })
 ### fps
 
 - Type: `number | false`
-- Default: `undefined`
+- Default: `false`
 
 Specifies a fixed rate for the frame update cycle.
 
@@ -342,12 +342,6 @@ const frame = createFrame({ fps: 60 })
 // It can also be set dynamically via the `.fps` setter
 frame.fps = 60
 ```
-
-## Community
-
-Feel free to ask questions or share new ideas.
-
-Use the official [discussions](https://github.com/hypernym-studio/frame/discussions) to get involved.
 
 ## License
 
