@@ -45,7 +45,7 @@
     "lint:fix": "eslint --fix .",
     "format": "prettier --write .",
     "test": "vitest -c test/vitest.config.ts",
-    "prepublishOnly": "npm run build"
+    "prepublishOnly": "pnpm run build"
   },
   "peerDependencies": {
     "@types/node": ">=20.0.0",
