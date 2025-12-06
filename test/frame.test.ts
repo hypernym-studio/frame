@@ -3,8 +3,8 @@
 import { createFrame } from '@'
 import { describe, test } from 'vitest'
 
-describe('Frame Manager - Compact', () => {
-  test('should create a compact frame manager', () => {
+describe('Frame Manager', () => {
+  test('should create a frame manager', () => {
     return new Promise<void>((resolve, reject) => {
       const frame = createFrame()
 
