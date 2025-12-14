@@ -34,7 +34,7 @@ export function createFrame(options: FrameOptions = {}): Frame {
       ? requestAnimationFrame
       : () => {},
     loop: allowLoop = true,
-    fps = false,
+    fps,
   } = options
 
   const phases = new Map<number, Phase>()
@@ -99,8 +99,7 @@ export function createFrame(options: FrameOptions = {}): Frame {
       },
       delete(process: Process): void {
         nextFrame.delete(process)
-        if (loops.has(process)) activeLoops--
-        loops.delete(process)
+        if (loops.delete(process)) activeLoops--
       },
     }
     return phase
@@ -141,7 +140,7 @@ export function createFrame(options: FrameOptions = {}): Frame {
   return {
     add(
       process: Process,
-      { loop, phase = 0, schedule = true }: ProcessOptions = {},
+      { phase = 0, ...opts }: ProcessOptions = {},
     ): Process {
       let p = phases.get(phase)
       if (!p) {
@@ -155,19 +154,16 @@ export function createFrame(options: FrameOptions = {}): Frame {
         lastTime = performance.now()
         scheduler(runFrame)
       }
-      return p.schedule(process, { loop, phase, schedule })
+      return p.schedule(process, { phase, ...opts })
     },
     delete(process?: Process): void {
-      if (!process) {
-        state = defaultState()
-        phases.clear()
-        order = []
-        loops = new WeakSet()
-        activeLoops = lastTime = lastPauseTime = totalPausedTime = 0
-        shouldRun = isStopped = false
-        return
-      }
-      phases.forEach((id) => id.delete(process))
+      if (process) return phases.forEach((id) => id.delete(process))
+      phases.clear()
+      order = []
+      loops = new WeakSet()
+      state = defaultState()
+      activeLoops = lastTime = lastPauseTime = totalPausedTime = 0
+      shouldRun = isStopped = false
     },
     start(): void {
       if (isStopped && shouldRun) {
@@ -190,8 +186,8 @@ export function createFrame(options: FrameOptions = {}): Frame {
     get state(): Readonly<FrameState> {
       return state
     },
-    get fps(): number | false {
-      return fps
+    get fps(): number {
+      return fps || Infinity
     },
     set fps(v) {
       frameInterval = 1000 / (v || 60)
