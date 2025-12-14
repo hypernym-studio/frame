@@ -16,65 +16,46 @@
 
 <pre align="center">pnpm add @hypernym/frame</pre>
 
+<p align="center">
+  <sub>Package size: <code>~1.28 KB</code> minified, <code>~705 B</code> gzip</sub>
+</p>
+
 <br>
 
 ## Features
 
-- Free & Open Source
-- Ultra-lightweight & Powerful
-- Framework-Independent
+- Ultra Lightweight & Powerful
+- Framework Independent
 - Written in TypeScript
 - Native SSR Support
 - No External Dependencies
-- Extremely Easy to Use
-- API-Friendly
-
-<blockquote>
-  <sub><strong>Package size</strong>: <code>~1.32 KB</code> minified, <code>~708 B</code> gzip</sub>
-</blockquote>
+- API Friendly
 
 ## Core Concepts
 
-- **Frame Scheduling**: Schedules processes in different phases of the frame loop.
-- **Dynamic Phases**: Allows dynamic configuration of frame phases.
-- **Custom Scheduler**: Supports various schedulers, such as raf, timeout, and microtask.
-- **Frame Controls**: Provides developers complete control over the execution flow.
-- **FPS Managment**: Adds fixed rate control for frame update cycle.
-- **Frame State**: Tracks and stores the state of the frame cycle.
-- **Modular Code**: Follows modern module standards for flexibility and integration.
-- **Type-safe**: Provides first-class TypeScript support with official built-in declarations.
-
-## Introduction
-
-**Frame** is designed to manage and execute processes in different phases of a frame-based loop, typically used for timed operations, making it ideal for game loops, animations or periodic updates.
-
-Organizes processes into distinct phases, controls timing with FPS and delta time, ensuring smooth execution by syncing with the browser’s `requestAnimationFrame` method, and allows dynamic configuration of frame phases.
-
-**Frame** provides `add`, `delete`, `start` and `stop` methods for powerful control over the execution of the frame cycle, allowing advanced manipulation of when the frame loop should continue or wait for next update.
-
-These methods are super useful in situations where you need to manage the frame dynamically, such as when the user switches tabs and returns to the page.
+- Frame Scheduling
+- Dynamic Phases
+- Strict Queue Order
+- Custom Scheduler
+- Frame Controls
+- FPS Managment
+- Frame State
+- Modular Code
+- Type-safe
 
 ## Installation
 
-Install `@hypernym/frame` package:
-
 ```sh
-# via pnpm
 pnpm add @hypernym/frame
 ```
 
 ```sh
-# via npm
 npm install @hypernym/frame
 ```
 
-### CDN
+## CDN
 
-Here are some examples of how to integrate **Frame** from a CDN via a script tag.
-
-Also, it is possible to download files manually and serve them accordingly.
-
-#### ESM (minified)
+### ESM (minified)
 
 ```html
 <script type="module">
@@ -83,7 +64,7 @@ Also, it is possible to download files manually and serve them accordingly.
 </script>
 ```
 
-#### IIFE (minified)
+### IIFE (minified)
 
 ```html
 <script src="https://unpkg.com/@hypernym/frame/dist/index.iife.js"></script>
@@ -93,7 +74,7 @@ Also, it is possible to download files manually and serve them accordingly.
 </script>
 ```
 
-#### UMD (minified)
+### UMD (minified)
 
 ```html
 <script src="https://unpkg.com/@hypernym/frame/dist/index.umd.js"></script>
@@ -105,7 +86,7 @@ Also, it is possible to download files manually and serve them accordingly.
 
 ## Quick Start
 
-Create a `frame` manager with default phases.
+Creates a `frame` manager with the default phase.
 
 ```ts
 import { createFrame } from '@hypernym/frame'
@@ -129,9 +110,7 @@ const process = frame.add(
 )
 ```
 
-Each phase is executed in a strict order, which can be defined via `frame` options.
-
-Default phase order is `read` → `update` → `render`.
+Each phase is executed in strictly ascending numerical order.
 
 ```ts
 frame.add(() => console.log('Phase 2: Render'), { phase: 2 })
@@ -139,6 +118,7 @@ frame.add(() => console.log('Phase 1: Update'), { phase: 1 })
 frame.add(() => console.log('Phase 0: Read'))
 frame.add(() => console.log('Phase 2: Render'), { phase: 2 })
 frame.add(() => console.log('Phase 0: Read'))
+frame.add(() => console.log('Phase 1: Update'), { phase: 1 })
 ```
 
 Output:
@@ -176,11 +156,11 @@ frame.fps
 
 ### add
 
-- Type: `(process: Process, options?: ProcessOptions) => Process`
+- Type: `(process: Process, options?: ProcessOptions): Process`
 
 Adds a specific process to the frame update cycle.
 
-By default, the process will be executed only once, but you can configure it to repeat by enabling a `loop: true` option, continuing until it is explicitly stopped.
+By default, the process will be executed only once.
 
 ```ts
 frame.add(process, options)
@@ -188,35 +168,20 @@ frame.add(process, options)
 
 ### delete
 
-- Type: `(process?: Process) => void`
+- Type: `(process?: Process): void`
 
-Allows you to remove a specific process from the frame update cycle which means no more process repeats on subsequent frames.
-
-This is useful when you need to dynamically remove or cancel a task from the queue without disrupting the rest of the frame update flow.
+Deletes a specific process from the frame update cycle.
 
 ```ts
-frame.delete(process)
-```
-
-It is also possible to removes all scheduled phases from the frame update cycle and reset the state of the frame.
-
-Effectively clears the entire update queue, stopping all scheduled tasks from running on subsequent frames and cancels the scheduler. No tasks will be executed until new ones are scheduled.
-
-Useful for cleanup or re-initialization, like when starting over or clearing tasks after a specific process completes.
-
-It's recommended to call this method when you are sure that there is no need for another frame process, such as before changing routes in meta-frameworks.
-
-```ts
-frame.delete()
+frame.delete(process) // Deletes a specific process
+frame.delete() // Deletes all processes, phases and resets the frame state
 ```
 
 ### start
 
-- Type: `() => void`
+- Type: `(): void`
 
-Unpauses the loop and restores the normal frame update cycle.
-
-Ensures that the frame updates continue as expected, without skipping any frames, and the system will continue processing scheduled tasks on each new frame.
+Starts the entire frame loop.
 
 ```ts
 frame.start()
@@ -224,11 +189,9 @@ frame.start()
 
 ### stop
 
-- Type: `() => void`
+- Type: `(): void`
 
-Halts the entire frame update loop, pausing all scheduled tasks and animations until `.start()` is explicitly called again.
-
-Helps prevent unnecessary processing and save system resources.
+Stops the entire frame loop.
 
 ```ts
 frame.stop()
@@ -239,9 +202,7 @@ frame.stop()
 - Type: `boolean`
 - Default: `undefined`
 
-Specifies whether the phase process should continue to repeat through each subsequent frame, without stopping after the first execution.
-
-Directs the scheduling system to re-run the same task on each frame until explicitly deleted.
+Specifies whether the phase process should continue to repeat, without stopping after the first execution.
 
 ```ts
 frame.add((state) => console.log(state), { loop: true })
@@ -252,18 +213,16 @@ frame.add((state) => console.log(state), { loop: true })
 - Type: `number`
 - Default: `0`
 
-All phases are unified under a single `.add()` method and are created dynamically, optimizing performance by avoiding unnecessary initialization.
+Specifies a custom frame phase.
 
-The default phase is `0`, and specifying a phase is optional. You can define an unlimited number of phases, though most use cases only require one or two, typically three: `read (0)`, `update (1)`, and `render (2)`.
-
-Phases always run in `strict` numerical order, from the smallest to the largest.
+Phases always run in strictly ascending numerical order.
 
 ```ts
-frame.add(process, { phase: -1 }) // runs before 0
-frame.add(process) // default phase is 0
-frame.add(process, { phase: 1 }) // runs after 0
-frame.add(process, { phase: 2 }) // runs after 1
-// etc ...
+frame.add(process, { phase: -1 }) // Runs before 0
+frame.add(process) // Default phase is 0
+frame.add(process, { phase: 1 }) // Runs after 0
+frame.add(process, { phase: 2 }) // Runs after 1
+// ...
 ```
 
 ### schedule
@@ -273,9 +232,7 @@ frame.add(process, { phase: 2 }) // runs after 1
 
 Specifies the scheduling behavior.
 
-By default this is enabled which means the process waits for the next loop cycle.
-
-If disabled, it cancels the scheduling to the next frame and executes at the end of the current frame.
+By default, the process waits for the next loop cycle. If disabled, it cancels the scheduling to the next frame and executes at the end of the current frame.
 
 ```ts
 let index = 0
@@ -291,16 +248,12 @@ frame.add(() => console.log('Index: ', index), { phase: 1 }) // => Index 2
 
 - Type: `object`
 
-Provides a read-only info of the internal frame `state` at any given point.
-
-This can include info about the frame’s current `delta`, `timestamp` and `running` status.
-
-Useful for debugging and monitoring or for dynamic actions based on the current state of the frame.
+Provides read‑only info about the frame’s internal `state` at any given point.
 
 ```ts
 frame.add((state) => console.log(state))
 
-// The state can also be accessed via the `.state` getter
+// Gets the `state` via getter
 console.log(frame.state)
 ```
 
@@ -313,7 +266,7 @@ console.log(frame.state)
 
 Specifies the scheduling system for the frame cycle.
 
-This determines how the frame updates are processed, whether through the `requestAnimationFrame`, `setTimeout` or `microtask`.
+Determines how the frame updates are processed, whether through the `requestAnimationFrame`, `setTimeout` or `microtask`.
 
 ```ts
 import { createFrame } from '@hypernym/frame'
@@ -323,14 +276,10 @@ const frame = createFrame({ scheduler: queueMicrotask, loop: false })
 
 ### fps
 
-- Type: `number | false`
-- Default: `false`
+- Type: `number`
+- Default: `undefined`
 
 Specifies a fixed rate for the frame update cycle.
-
-Useful when you want to control the framerate limit and prevent the frame loop from running at the maximum possible speed (e.g., for performance reasons, consistency, or to match a loop’s intended frame rate).
-
-This ensure that the updates are more predictable and not too fast or inconsistent.
 
 By default, the frame runs as fast as possible (typically tied to the `raf` cycle, which is usually 60 FPS or higher).
 
@@ -339,7 +288,7 @@ import { createFrame } from '@hypernym/frame'
 
 const frame = createFrame({ fps: 60 })
 
-// It can also be set dynamically via the `.fps` setter
+// Specifies the `fps` via setter
 frame.fps = 60
 ```
 
