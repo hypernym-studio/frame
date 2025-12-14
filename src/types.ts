@@ -24,14 +24,14 @@ export interface Frame {
   start(): void
   stop(): void
   get state(): Readonly<FrameState>
-  get fps(): number | false
-  set fps(v: number | false)
+  get fps(): number
+  set fps(v: number)
 }
 
 export interface FrameOptions {
   scheduler?: (process: VoidFunction) => number | void
   loop?: boolean
-  fps?: number | false
+  fps?: number
 }
 
 export * from '@'
