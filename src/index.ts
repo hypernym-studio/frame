@@ -100,6 +100,7 @@ export function createFrame(options: FrameOptions = {}): Frame {
       delete(process: Process): void {
         nextFrame.delete(process)
         if (loops.delete(process)) activeLoops--
+        if (!activeLoops) shouldRun = false
       },
     }
     return phase
@@ -110,8 +111,6 @@ export function createFrame(options: FrameOptions = {}): Frame {
 
     const now = performance.now()
     const time = now - totalPausedTime
-
-    shouldRun = activeLoops > 0
 
     if (fps) {
       const delta = time - lastTime
