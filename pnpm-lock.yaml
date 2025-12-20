@@ -9,8 +9,8 @@ importers:
   .:
     devDependencies:
       '@hypernym/bundler':
-        specifier: ^0.30.7
-        version: 0.30.7(@types/node@24.10.4)(typescript@5.9.3)
+        specifier: ^0.31.0
+        version: 0.31.0(@types/node@24.10.4)(typescript@5.9.3)
       '@hypernym/eslint-config':
         specifier: ^3.6.6
         version: 3.6.6(eslint@9.39.2)(typescript@5.9.3)
@@ -331,8 +331,8 @@ packages:
   '@hypernym/args@0.3.4':
     resolution: {integrity: sha512-4c7atkLJzIgUibN9EqP0v+PExE0T7UgY7hKfvXNciviM5LzUCiNgMpMB5aHeMlEVEtJCbrg+Chx4nZ56jkGvfg==}
 
-  '@hypernym/bundler@0.30.7':
-    resolution: {integrity: sha512-0AYiKA2/aWV9iK2imvoKtZ/IxA2Vi5VlLBl+nALh7JVS/FNGzX05jaKPFPGB45ZiWkqcbeRvB23QdvMvyIJSUA==}
+  '@hypernym/bundler@0.31.0':
+    resolution: {integrity: sha512-z2C2fXzlihkHi0Rca2YhIP5NDxTJ0xMYA+YNdV+RDULQ1RM6LZXVDtb+VwSa0y/DuEUfTFJyE7GuIDzffI+p5w==}
     hasBin: true
     peerDependencies:
       '@types/node': '>=20.0.0'
@@ -1145,13 +1145,13 @@ packages:
   resolve-pkg-maps@1.0.0:
     resolution: {integrity: sha512-seS2Tj26TBVOC2NIc2rOe2y2ZO7efxITtLZcGSOnHHNOQ7CkiUBfw0Iw2ck6xkIhPwLhKNLS8BO+hEpngQlqzw==}
 
-  rolldown-plugin-dts@0.18.4:
-    resolution: {integrity: sha512-7UpdiICFd/BhdjKtDPeakCFRk6pbkTGFe0Z6u01egt4c8aoO+JoPGF1Smc+JRuCH2s5j5hBdteBi0e10G0xQdQ==}
+  rolldown-plugin-dts@0.19.1:
+    resolution: {integrity: sha512-6z501zDTGq6ZrIEdk57qNUwq7kBRGzv3I3SAN2HMJ2KFYjHLnAuPYOmvfiwdxbRZMJ0iMdkV9rYdC3GjurT2cg==}
     engines: {node: '>=20.19.0'}
     peerDependencies:
       '@ts-macro/tsc': ^0.3.6
       '@typescript/native-preview': '>=7.0.0-dev.20250601.1'
-      rolldown: ^1.0.0-beta.51
+      rolldown: ^1.0.0-beta.55
       typescript: ^5.0.0
       vue-tsc: ~3.1.0
     peerDependenciesMeta:
@@ -1621,13 +1621,13 @@ snapshots:
 
   '@hypernym/args@0.3.4': {}
 
-  '@hypernym/bundler@0.30.7(@types/node@24.10.4)(typescript@5.9.3)':
+  '@hypernym/bundler@0.31.0(@types/node@24.10.4)(typescript@5.9.3)':
     dependencies:
       '@hypernym/args': 0.3.4
       '@hypernym/colors': 1.0.6(@types/node@24.10.4)(typescript@5.9.3)
       '@hypernym/utils': 3.4.6(@types/node@24.10.4)(typescript@5.9.3)
       rolldown: 1.0.0-beta.55
-      rolldown-plugin-dts: 0.18.4(rolldown@1.0.0-beta.55)(typescript@5.9.3)
+      rolldown-plugin-dts: 0.19.1(rolldown@1.0.0-beta.55)(typescript@5.9.3)
     optionalDependencies:
       '@types/node': 24.10.4
       typescript: 5.9.3
@@ -2371,7 +2371,7 @@ snapshots:
 
   resolve-pkg-maps@1.0.0: {}
 
-  rolldown-plugin-dts@0.18.4(rolldown@1.0.0-beta.55)(typescript@5.9.3):
+  rolldown-plugin-dts@0.19.1(rolldown@1.0.0-beta.55)(typescript@5.9.3):
     dependencies:
       '@babel/generator': 7.28.5
       '@babel/parser': 7.28.5
@@ -2380,7 +2380,6 @@ snapshots:
       birpc: 4.0.0
       dts-resolver: 2.1.3
       get-tsconfig: 4.13.0
-      magic-string: 0.30.21
       obug: 2.1.1
       rolldown: 1.0.0-beta.55
     optionalDependencies:
