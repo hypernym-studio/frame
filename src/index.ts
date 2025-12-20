@@ -1,7 +1,7 @@
 import type {
-  Process,
-  ProcessOptions,
-  Phase,
+  FrameProcess,
+  FrameProcessOptions,
+  FramePhase,
   FrameState,
   FrameOptions,
   Frame,
@@ -37,10 +37,10 @@ export function createFrame(options: FrameOptions = {}): Frame {
     fps,
   } = options
 
-  const phases = new Map<number, Phase>()
+  const phases = new Map<number, FramePhase>()
   let order: number[] = []
 
-  let loops = new WeakSet<Process>()
+  let loops = new WeakSet<FrameProcess>()
   let activeLoops = 0
 
   let shouldRun = false
@@ -55,23 +55,23 @@ export function createFrame(options: FrameOptions = {}): Frame {
   const defaultState = () => ({ delta: 0, timestamp: 0, isRunning: false })
   let state: FrameState = defaultState()
 
-  const createPhase = (): Phase => {
-    let thisFrame = new Set<Process>()
-    let nextFrame = new Set<Process>()
+  const createPhase = (): FramePhase => {
+    let thisFrame = new Set<FrameProcess>()
+    let nextFrame = new Set<FrameProcess>()
 
     let isRunning = false
     let flushNextFrame = false
 
-    const runProcess = (process: Process): void => {
+    const runProcess = (process: FrameProcess): void => {
       if (loops.has(process)) phase.schedule(process)
       process(state)
     }
 
-    const phase: Phase = {
+    const phase: FramePhase = {
       schedule(
-        process: Process,
-        { loop, schedule = true }: ProcessOptions = {},
-      ): Process {
+        process: FrameProcess,
+        { loop, schedule = true }: FrameProcessOptions = {},
+      ): FrameProcess {
         const queue = isRunning && !schedule ? thisFrame : nextFrame
         if (loop && !loops.has(process)) {
           loops.add(process)
@@ -97,7 +97,7 @@ export function createFrame(options: FrameOptions = {}): Frame {
           phase.add(state)
         }
       },
-      delete(process: Process): void {
+      delete(process: FrameProcess): void {
         nextFrame.delete(process)
         if (loops.delete(process)) activeLoops--
         if (!activeLoops) shouldRun = false
@@ -138,9 +138,9 @@ export function createFrame(options: FrameOptions = {}): Frame {
 
   return {
     add(
-      process: Process,
-      { phase = 0, ...opts }: ProcessOptions = {},
-    ): Process {
+      process: FrameProcess,
+      { phase = 0, ...opts }: FrameProcessOptions = {},
+    ): FrameProcess {
       let p = phases.get(phase)
       if (!p) {
         order.push(phase)
@@ -155,7 +155,7 @@ export function createFrame(options: FrameOptions = {}): Frame {
       }
       return p.schedule(process, { phase, ...opts })
     },
-    delete(process?: Process): void {
+    delete(process?: FrameProcess): void {
       if (process) return phases.forEach((id) => id.delete(process))
       phases.clear()
       order = []

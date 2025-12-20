@@ -1,15 +1,15 @@
-export type Process = (state: FrameState) => void
+export type FrameProcess = (state: FrameState) => void
 
-export interface ProcessOptions {
+export interface FrameProcessOptions {
   loop?: boolean
   phase?: number
   schedule?: boolean
 }
 
-export interface Phase {
-  schedule(process: Process, options?: ProcessOptions): Process
+export interface FramePhase {
+  schedule(process: FrameProcess, options?: FrameProcessOptions): FrameProcess
   add(state: FrameState): void
-  delete(process: Process): void
+  delete(process: FrameProcess): void
 }
 
 export interface FrameState {
@@ -19,8 +19,8 @@ export interface FrameState {
 }
 
 export interface Frame {
-  add(process: Process, options?: ProcessOptions): Process
-  delete(process?: Process): void
+  add(process: FrameProcess, options?: FrameProcessOptions): FrameProcess
+  delete(process?: FrameProcess): void
   start(): void
   stop(): void
   get state(): Readonly<FrameState>
