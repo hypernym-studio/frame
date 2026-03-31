@@ -4,11 +4,11 @@
 
 <p align="center">
   <a href="https://github.com/hypernym-studio/frame">Repository</a>
-  <span>✦</span>
+  <span>|</span>
   <a href="https://www.npmjs.com/package/@hypernym/frame">Package</a>
-  <span>✦</span>
+  <span>|</span>
   <a href="https://github.com/hypernym-studio/frame/releases">Releases</a>
-  <span>✦</span>
+  <span>|</span>
   <a href="https://github.com/hypernym-studio/frame/discussions">Discussions</a>
 </p>
 
@@ -17,7 +17,7 @@
 <pre align="center">pnpm add @hypernym/frame</pre>
 
 <p align="center">
-  <sub>Package size: <code>~1.28 KB</code> minified, <code>~705 B</code> gzip</sub>
+  <sub>Size: <code>~1.29 KB</code> min, <code>~0.70 KB</code> gzip</sub>
 </p>
 
 <br>
