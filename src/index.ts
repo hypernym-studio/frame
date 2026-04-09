@@ -40,19 +40,22 @@ export function createFrame(options: FrameOptions = {}): Frame {
   const phases = new Map<number, FramePhase>()
   let order: number[] = []
 
-  let loops = new WeakSet<FrameProcess>()
+  let pending = 0
   let activeLoops = 0
-
-  let shouldRun = false
-  let isStopped = false
+  let loops = new WeakSet<FrameProcess>()
 
   const maxDeltaTime = 40
   let frameInterval = 1000 / (fps || 60)
   let lastTime = 0
   let lastPauseTime = 0
   let totalPausedTime = 0
+  let isStopped = false
 
-  const defaultState = () => ({ delta: 0, timestamp: 0, isRunning: false })
+  const defaultState = (): FrameState => ({
+    delta: 0,
+    timestamp: 0,
+    isRunning: false,
+  })
   let state: FrameState = defaultState()
 
   const createPhase = (): FramePhase => {
@@ -63,7 +66,11 @@ export function createFrame(options: FrameOptions = {}): Frame {
     let flushNextFrame = false
 
     const runProcess = (process: FrameProcess): void => {
-      if (loops.has(process)) phase.schedule(process)
+      if (allowLoop && loops.has(process)) {
+        phase.schedule(process, { loop: true })
+      } else if (pending > 0) {
+        pending--
+      }
       process(state)
     }
 
@@ -73,36 +80,41 @@ export function createFrame(options: FrameOptions = {}): Frame {
         { loop, schedule = true }: FrameProcessOptions = {},
       ): FrameProcess {
         const queue = isRunning && !schedule ? thisFrame : nextFrame
-        if (loop && !loops.has(process)) {
+        if (!loop || !allowLoop) pending++
+        if (allowLoop && loop && !loops.has(process)) {
           loops.add(process)
           activeLoops++
         }
         queue.add(process)
         return process
       },
-      add(state: FrameState): void {
+      run(): void {
         if (isRunning) {
           flushNextFrame = true
           return
         }
 
         isRunning = true
-        ;[thisFrame, nextFrame] = [nextFrame, thisFrame]
+        const prevFrame = thisFrame
+        thisFrame = nextFrame
+        nextFrame = prevFrame
         thisFrame.forEach(runProcess)
         thisFrame.clear()
         isRunning = false
 
         if (flushNextFrame) {
           flushNextFrame = false
-          phase.add(state)
+          phase.run()
         }
       },
       delete(process: FrameProcess): void {
-        nextFrame.delete(process)
-        if (loops.delete(process)) activeLoops--
-        if (!activeLoops) shouldRun = false
+        if (nextFrame.delete(process) && !loops.has(process) && pending > 0) {
+          pending--
+        }
+        if (allowLoop && loops.delete(process)) activeLoops--
       },
     }
+
     return phase
   }
 
@@ -130,10 +142,12 @@ export function createFrame(options: FrameOptions = {}): Frame {
 
     state.timestamp = time
     state.isRunning = true
-    order.forEach((p) => phases.get(p)?.add(state))
+    order.forEach((p) => phases.get(p)?.run())
     state.isRunning = false
 
-    if (shouldRun && allowLoop && !isStopped) scheduler(runFrame)
+    if ((allowLoop && activeLoops > 0) || pending > 0) {
+      scheduler(runFrame)
+    }
   }
 
   return {
@@ -148,8 +162,7 @@ export function createFrame(options: FrameOptions = {}): Frame {
         p = createPhase()
         phases.set(phase, p)
       }
-      if (!shouldRun) {
-        shouldRun = true
+      if (pending === 0 && activeLoops === 0) {
         lastTime = performance.now()
         scheduler(runFrame)
       }
@@ -161,11 +174,11 @@ export function createFrame(options: FrameOptions = {}): Frame {
       order = []
       loops = new WeakSet()
       state = defaultState()
-      activeLoops = lastTime = lastPauseTime = totalPausedTime = 0
-      shouldRun = isStopped = false
+      pending = activeLoops = lastTime = lastPauseTime = totalPausedTime = 0
+      isStopped = false
     },
     start(): void {
-      if (isStopped && shouldRun) {
+      if (isStopped) {
         isStopped = false
         const now = performance.now()
         if (lastPauseTime) {

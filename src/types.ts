@@ -8,7 +8,7 @@ export interface FrameProcessOptions {
 
 export interface FramePhase {
   schedule(process: FrameProcess, options?: FrameProcessOptions): FrameProcess
-  add(state: FrameState): void
+  run(): void
   delete(process: FrameProcess): void
 }
 
