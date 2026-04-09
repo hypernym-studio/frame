@@ -17,7 +17,7 @@
 <pre align="center">pnpm add @hypernym/frame</pre>
 
 <p align="center">
-  <sub>Size: <code>~1.29 KB</code> min, <code>~0.70 KB</code> gzip</sub>
+  <sub>Size: <code>~1.34 KB</code> min, <code>~0.73 KB</code> gzip</sub>
 </p>
 
 <br>
