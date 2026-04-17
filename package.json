@@ -36,8 +36,7 @@
     "phase",
     "queue",
     "loop",
-    "raf",
-    "fps"
+    "raf"
   ],
   "scripts": {
     "dev": "vite playground",
@@ -69,10 +68,10 @@
     "@hypernym/changelog": "^0.3.0",
     "@hypernym/oxlint-config": "^0.1.0",
     "@hypernym/tsconfig": "^2.7.1",
-    "@types/node": "^25.5.2",
+    "@types/node": "^25.6.0",
     "jsdom": "^29.0.2",
-    "oxfmt": "^0.44.0",
-    "oxlint": "^1.59.0",
+    "oxfmt": "^0.45.0",
+    "oxlint": "^1.60.0",
     "typescript": "^5.9.3",
     "vite": "^8.0.8",
     "vitest": "^4.1.4"
