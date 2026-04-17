@@ -1,62 +1,51 @@
 import { createFrame } from '@'
 
-const frame = createFrame({ fps: 30 })
+const frame = createFrame()
 
-const handleVisibilityChange = (): void => {
-  if (document.hidden) frame.stop()
-  else frame.start()
-}
+frame.add(({ timestamp, delta, isRunning }) => {
+  console.log('Run once (1)', timestamp, delta, isRunning)
 
-document.addEventListener('visibilitychange', handleVisibilityChange)
+  frame.add(({ timestamp, delta, isRunning }) => {
+    console.log('Run once (3)', timestamp, delta, isRunning)
+  })
+})
 
-const el = document.querySelector('.state') as HTMLElement
+frame.add(({ timestamp, delta, isRunning }) => {
+  console.log('Run once (2)', timestamp, delta, isRunning)
 
-frame.add(() => console.log('Phase 2: Render'), { phase: 2 })
-frame.add(() => console.log('Phase 1: Update'), { phase: 1 })
-frame.add(() => console.log('Phase 0: Read'))
-frame.add(() => console.log('Phase 2: Render'), { phase: 2 })
-frame.add(() => console.log('Phase 0: Read'))
+  frame.add(({ timestamp, delta, isRunning }) => {
+    console.log('Run once (4)', timestamp, delta, isRunning)
+  })
+})
 
-let updateIndex: number = 0
-let updateStartTime: number = 0
+let resolve: (value: boolean) => void
 
-const onUpdate = frame.add(
-  (state) => {
-    console.log('Phase 1: Update Loop')
+const completed = new Promise((res) => {
+  resolve = res
+})
 
-    updateIndex++
-    const elapsed = state.timestamp - updateStartTime
+let index = 0
 
-    if (elapsed >= 1000) {
-      updateStartTime = state.timestamp
-    }
+const process = frame.add(
+  ({ timestamp, delta, isRunning }) => {
+    index++
 
-    if (updateIndex >= 100) frame.delete(onUpdate)
-  },
-  { loop: true, phase: 1 },
-)
+    console.log(`Loop (${index})`, timestamp, delta, isRunning)
 
-let renderStartTime = 0
-
-const lerp = (start: number, end: number, t: number): number =>
-  start + (end - start) * t
-
-const onRender = frame.add(
-  (state) => {
-    const elapsedTime = state.timestamp - renderStartTime
-    const progress = Math.min(elapsedTime / 4000, 1)
-    const position = lerp(0, 900, progress)
-
-    el.innerHTML = `${updateIndex} | ${parseFloat(state.timestamp.toFixed(0))}`
-    el.style.transform = `translateX(${position}px)`
-
-    if (position === 900) {
-      frame.delete(onRender)
-      console.log('Phase 2: Render Loop Done! ', frame.state)
-
-      frame.delete()
-      console.log('Frame cleared: ', frame.state)
+    if (index >= 33) {
+      frame.delete(process)
+      resolve(true)
     }
   },
-  { loop: true, phase: 2 },
+  { loop: true },
 )
+
+completed.then(() => {
+  console.log('Frame State', frame.state)
+
+  requestAnimationFrame(() => {
+    frame.add(({ timestamp, delta, isRunning }) => {
+      console.log('Run once (final)', timestamp, delta, isRunning)
+    })
+  })
+})

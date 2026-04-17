@@ -17,7 +17,7 @@
 <pre align="center">pnpm add @hypernym/frame</pre>
 
 <p align="center">
-  <sub>Size: <code>~1.34 KB</code> min, <code>~0.73 KB</code> gzip</sub>
+  <sub>Size: <code>~1.01 KB</code> min, <code>~0.58 KB</code> gzip</sub>
 </p>
 
 <br>
@@ -37,8 +37,6 @@
 - Dynamic Phases
 - Strict Queue Order
 - Custom Scheduler
-- Frame Controls
-- FPS Managment
 - Frame State
 - Modular Code
 - Type-safe
@@ -110,7 +108,7 @@ const process = frame.add(
 )
 ```
 
-Each phase is executed in strictly ascending numerical order.
+Phases always run from the lowest number to the highest.
 
 ```ts
 frame.add(() => console.log('Phase 2: Render'), { phase: 2 })
@@ -137,85 +135,69 @@ Phase 2: Render
 ```ts
 import { createFrame } from '@hypernym/frame'
 
-// Frame
+// Main Frame
 const frame = createFrame(options)
 
-// Phases
+// Methods
 frame.add(process, options)
 frame.delete(process)
-frame.delete()
 
-// Controls
-frame.start()
-frame.stop()
-
-// Getters/Setters
+// Getters
 frame.state
-frame.fps
 ```
 
-### add
+## add
 
-- Type: `(process: Process, options?: ProcessOptions): Process`
+- Type: `(process: FrameProcess, options?: FrameProcessOptions): FrameProcess`
 
 Adds a specific process to the frame update cycle.
 
-By default, the process will be executed only once.
+> [!NOTE]
+>
+> By default, the process will be executed only once (phase: `0`).
 
 ```ts
 frame.add(process, options)
 ```
 
-### delete
-
-- Type: `(process?: Process): void`
-
-Deletes a specific process from the frame update cycle.
-
-```ts
-frame.delete(process) // Deletes a specific process
-frame.delete() // Deletes all processes, phases and resets the frame state
-```
-
-### start
-
-- Type: `(): void`
-
-Starts the entire frame loop.
-
-```ts
-frame.start()
-```
-
-### stop
-
-- Type: `(): void`
-
-Stops the entire frame loop.
-
-```ts
-frame.stop()
-```
-
-### loop
+## loop
 
 - Type: `boolean`
 - Default: `undefined`
 
 Specifies whether the phase process should continue to repeat, without stopping after the first execution.
 
+> [!NOTE]
+>
+> Repeating processes need to be removed manually using the `frame.delete(process)` method.
+
 ```ts
 frame.add((state) => console.log(state), { loop: true })
 ```
 
-### phase
+## delete
+
+- Type: `(process?: FrameProcess): void`
+
+Deletes a specific process from the frame update cycle.
+
+> [!NOTE]
+>
+> Calling `frame.delete()` without the `process` parameter resets the main `frame` instance, resulting in the deletion of all processes, phases, and state.
+
+```ts
+frame.delete(process) // Deletes a specific process
+frame.delete() // Deletes all processes, phases and resets the frame state
+```
+
+## phase
 
 - Type: `number`
 - Default: `0`
 
 Specifies a custom frame phase.
 
-Phases always run in strictly ascending numerical order.
+Phases are processed in ascending numerical order, meaning lower run before higher ones.
 
 ```ts
 frame.add(process, { phase: -1 }) // Runs before 0
@@ -225,26 +207,26 @@ frame.add(process, { phase: 2 }) // Runs after 1
 // ...
 ```
 
-### schedule
+## immediate
 
 - Type: `boolean`
-- Default: `true`
+- Default: `undefined`
 
-Specifies the scheduling behavior.
+Controls the scheduling behavior.
 
-By default, the process waits for the next loop cycle. If disabled, it cancels the scheduling to the next frame and executes at the end of the current frame.
+By default, the process is scheduled to the next loop cycle. When enabled, it skips scheduling and executes at the end of the current frame.
 
 ```ts
 let index = 0
 
 frame.add(() => {
   index++
-  frame.add(() => index++, { schedule: false })
+  frame.add(() => index++, { immediate: true })
 })
 frame.add(() => console.log('Index: ', index), { phase: 1 }) // => Index 2
 ```
 
-### state
+## state
 
 - Type: `object`
 
@@ -266,7 +248,7 @@ console.log(frame.state)
 
 Specifies the scheduling system for the frame cycle.
 
-Determines how the frame updates are processed, whether through the `requestAnimationFrame`, `setTimeout` or `microtask`.
+Determines how the frame updates are processed, whether through the `requestAnimationFrame` or `microtask`.
 
 ```ts
 import { createFrame } from '@hypernym/frame'
@@ -274,22 +256,17 @@ import { createFrame } from '@hypernym/frame'
 const frame = createFrame({ scheduler: queueMicrotask, loop: false })
 ```
 
-### fps
+### loop
 
-- Type: `number`
-- Default: `undefined`
+- Type: `boolean`
+- Default: `true`
 
-Specifies a fixed rate for the frame update cycle.
-
-By default, the frame runs as fast as possible (typically tied to the `raf` cycle, which is usually 60 FPS or higher).
+Specifies global looping across all processes.
 
 ```ts
 import { createFrame } from '@hypernym/frame'
 
-const frame = createFrame({ fps: 60 })
-
-// Specifies the `fps` via setter
-frame.fps = 60
+const frame = createFrame({ loop: false })
 ```
 
 ## License
