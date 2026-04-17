@@ -85,7 +85,7 @@ describe('Frame Manager', () => {
 
       frame.add(() => {
         index++
-        frame.add(() => index++, { schedule: false })
+        frame.add(() => index++, { immediate: true })
       })
       frame.add(() => (index === 2 ? resolve() : reject()), { phase: 1 })
     })
