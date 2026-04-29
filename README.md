@@ -24,12 +24,14 @@
 
 ## Features
 
-- Ultra Lightweight & Powerful
-- Framework Independent
+- Ultra-Lightweight & Powerful
+- Framework-Independent
+- Cross-Browser Support
 - Written in TypeScript
-- Native SSR Support
+- Built-in Type Declarations
 - No External Dependencies
-- API Friendly
+- Native SSR Support
+- API-Friendly
 
 ## Core Concepts
 
@@ -84,11 +86,10 @@ npm install @hypernym/frame
 
 ## Quick Start
 
-Creates a `frame` manager with the default phase.
-
 ```ts
 import { createFrame } from '@hypernym/frame'
 
+// Creates a main `frame` manager with the default phase
 const frame = createFrame()
 
 let index = 0
@@ -154,7 +155,7 @@ Adds a specific process to the frame update cycle.
 
 > [!NOTE]
 >
-> By default, the process will be executed only once (phase: `0`).
+> By default, the process will be executed only once.
 
 ```ts
 frame.add(process, options)
@@ -172,7 +173,7 @@ Specifies whether the phase process should continue to repeat, without stopping 
 > Repeating processes need to be removed manually using the `frame.delete(process)` method.
 
 ```ts
-frame.add((state) => console.log(state), { loop: true })
+frame.add(process, { loop: true })
 ```
 
 ## delete
