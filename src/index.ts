@@ -152,7 +152,10 @@ export function createFrame(options: FrameOptions = {}): Frame {
       return p.schedule(process, opts)
     },
     delete(process?: FrameProcess): void {
-      if (process) return phases.forEach((p) => p.delete(process))
+      if (arguments.length) {
+        if (process) phases.forEach((p) => p.delete(process))
+        return
+      }
       phases.clear()
       order = []
       loops = new WeakSet()
