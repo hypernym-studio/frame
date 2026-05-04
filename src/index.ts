@@ -101,8 +101,9 @@ export function createFrame(options: FrameOptions = {}): Frame {
         }
       },
       delete(process: FrameProcess): void {
-        nextFrame.delete(process)
         loops.delete(process)
+        if (state.isRunning && !isRunning) return
+        nextFrame.delete(process)
       },
     }
 
